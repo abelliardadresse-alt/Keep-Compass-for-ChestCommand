@@ -1,0 +1,10 @@
+# CompassHotbar Configuration
+
+# Enable or disable the plugin by default (can be toggled with command)
+enabled: true
+
+# Message displayed when compass is restored
+restored-message: "&6[CompassHotbar] &aVotre boussole a été restaurée dans votre hotbar!"
+
+# Message displayed when player tries to drop the compass
+drop-blocked-message: "&6[CompassHotbar] &cVous ne pouvez pas lâcher votre boussole!"
