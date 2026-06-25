@@ -30,7 +30,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (plugin.isEnabled()) {
+        if (plugin.isPluginEnabled()) {
             plugin.giveCompass(player);
         }
     }
@@ -38,7 +38,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        if (plugin.isEnabled()) {
+        if (plugin.isPluginEnabled()) {
             plugin.giveCompass(player);
         }
     }
@@ -46,21 +46,20 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isPluginEnabled()) return;
 
         PlayerInventory inventory = player.getInventory();
         ItemStack compass = inventory.getItem(COMPASS_SLOT);
 
         if (compass != null && compass.getType() == Material.COMPASS) {
             event.getDrops().remove(compass);
-            event.getKeepInventory().add(compass);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isPluginEnabled()) return;
         if (!player.hasPermission("compasshotbar.use")) return;
 
         ItemStack droppedItem = event.getItemDrop().getItemStack();
@@ -74,7 +73,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isPluginEnabled()) return;
         if (!player.hasPermission("compasshotbar.use")) return;
 
         if (event.getSlot() == COMPASS_SLOT) {
@@ -116,7 +115,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isPluginEnabled()) return;
         if (!player.hasPermission("compasshotbar.use")) return;
 
         for (int slot : event.getRawSlots()) {
@@ -133,7 +132,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isPluginEnabled()) return;
         if (!player.hasPermission("compasshotbar.use")) return;
 
         ItemStack item = event.getItem();
@@ -147,7 +146,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isPluginEnabled()) return;
         if (!player.hasPermission("compasshotbar.use")) return;
 
         plugin.ensureCompassInSlot(player);
@@ -155,7 +154,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onServerLoad(ServerLoadEvent event) {
-        if (plugin.isEnabled()) {
+        if (plugin.isPluginEnabled()) {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 plugin.giveCompass(player);
             }

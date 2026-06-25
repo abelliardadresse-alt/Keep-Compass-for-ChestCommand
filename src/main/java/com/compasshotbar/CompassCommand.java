@@ -5,8 +5,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +18,7 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, 
-                           @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         
         if (args.length == 0) {
             if (!sender.hasPermission("compasshotbar.command")) {
@@ -29,8 +26,8 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            boolean newState = !plugin.isEnabled();
-            plugin.setEnabled(newState);
+            boolean newState = !plugin.isPluginEnabled();
+            plugin.setPluginEnabled(newState);
 
             String stateMessage = newState ? "§aactivé" : "§cdésactivé";
             sender.sendMessage("§6[CompassHotbar] §aLe plugin est maintenant " + stateMessage + "§a!");
@@ -52,7 +49,7 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 plugin.reloadConfig();
-                plugin.setEnabled(plugin.getConfig().getBoolean("enabled", true));
+                plugin.setPluginEnabled(plugin.getConfig().getBoolean("enabled", true));
                 sender.sendMessage("§6[CompassHotbar] §aConfiguration rechargée!");
                 break;
 
@@ -61,7 +58,7 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
                     return true;
                 }
-                if (plugin.isEnabled()) {
+                if (plugin.isPluginEnabled()) {
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
                         plugin.giveCompass(player);
                     }
@@ -76,14 +73,14 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
                     return true;
                 }
-                boolean newStateToggle = !plugin.isEnabled();
-                plugin.setEnabled(newStateToggle);
+                boolean newStateToggle = !plugin.isPluginEnabled();
+                plugin.setPluginEnabled(newStateToggle);
                 String stateToggle = newStateToggle ? "§aactivé" : "§cdésactivé";
                 sender.sendMessage("§6[CompassHotbar] §aLe plugin est maintenant " + stateToggle + "§a!");
                 break;
 
             case "status":
-                String status = plugin.isEnabled() ? "§aactivé" : "§cdésactivé";
+                String status = plugin.isPluginEnabled() ? "§aactivé" : "§cdésactivé";
                 sender.sendMessage("§6[CompassHotbar] §7Statut du plugin: " + status);
                 break;
 
@@ -96,8 +93,7 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                 @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {

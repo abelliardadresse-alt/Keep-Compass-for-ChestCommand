@@ -1,8 +1,6 @@
 package com.compasshotbar;
 
 import org.bukkit.command.TabCompleter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +8,9 @@ import java.util.List;
 public class CompassTabCompleter implements TabCompleter {
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull org.bukkit.command.CommandSender sender,
-                                                @NotNull org.bukkit.command.Command command,
-                                                @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(org.bukkit.command.CommandSender sender,
+                                       org.bukkit.command.Command command,
+                                       String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
