@@ -1,12 +1,14 @@
 # Keep Compass for ChestCommand
 
-Plugin Minecraft Spigot/Paper 1.21 qui garde une boussole dans le dernier slot de la hotbar.
+Plugin Minecraft Spigot/Paper 1.21 qui garde une boussole dans le dernier slot de la hotbar et **empêche toute duplication**.
 
 ## 📋 Fonctionnalités
 
 - **Boussole automatique** : Une boussole est automatiquement placée dans le slot 8 (dernier de la hotbar)
+- **Anti-duplication** : Bloque toute tentative de duplication de la boussole (inventaire, coffre, drag, shift-click)
 - **Anti-drop** : Impossible de lâcher la boussole
 - **Anti-déplacement** : Si vous posez un item sur la boussole, l'item drop au sol
+- **Persistance après mort** : La boussole est conservée dans l'inventaire après la mort
 - **Persistance** : La boussole revient après mort, respawn, reconnexion
 - **Commande toggle** : Activez/désactivez le plugin avec /compasshotbar
 

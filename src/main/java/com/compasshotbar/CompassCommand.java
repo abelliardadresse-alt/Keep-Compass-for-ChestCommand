@@ -18,7 +18,8 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, 
+                           String label, String[] args) {
         
         if (args.length == 0) {
             if (!sender.hasPermission("compasshotbar.command")) {
@@ -93,7 +94,8 @@ public class CompassCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command,
+                                       String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {

@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.ServerLoadEvent;
@@ -54,6 +53,7 @@ public class PlayerListener implements Listener {
 
         if (compass != null && compass.getType() == Material.COMPASS) {
             event.getDrops().remove(compass);
+            event.setKeepInventory(true);
         }
     }
 
@@ -77,48 +77,38 @@ public class PlayerListener implements Listener {
         if (!plugin.isPluginEnabled()) return;
         if (!player.hasPermission("compasshotbar.use")) return;
 
-        PlayerInventory playerInventory = player.getInventory();
-        ItemStack compassInSlot = playerInventory.getItem(COMPASS_SLOT);
-        boolean hasCompassInSlot = compassInSlot != null && compassInSlot.getType() == Material.COMPASS;
+        if (event.getSlot() == COMPASS_SLOT) {
+            ItemStack currentItem = event.getCurrentItem();
 
-        // Check if the click is on the compass slot (raw slot 8 or converted slot 8 for bottom inventory)
-        boolean isCompassSlotClick = event.getSlot() == COMPASS_SLOT && 
-            event.getClickedInventory() != null && 
-            event.getClickedInventory().getType() == InventoryType.PLAYER;
+            if (currentItem != null && currentItem.getType() == Material.COMPASS) {
+                if (event.isShiftClick() || event.getAction().name().contains("MOVE")) {
+                    event.setCancelled(true);
+                    return;
+                }
 
-        // Block ALL interactions with the compass slot when it contains a compass
-        if (isCompassSlotClick && hasCompassInSlot) {
-            event.setCancelled(true);
-            
-            // If player had something on cursor, drop it
-            ItemStack cursorItem = event.getCursor();
-            if (cursorItem != null && cursorItem.getType() != Material.AIR) {
-                player.getWorld().dropItemNaturally(player.getLocation(), cursorItem);
-                player.setItemOnCursor(new ItemStack(Material.AIR));
+                if (event.getClickedInventory() != null && 
+                    event.getClickedInventory().getType() == InventoryType.PLAYER) {
+                    
+                    if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+                        ItemStack cursorItem = event.getCursor();
+                        event.setCancelled(true);
+                        player.getWorld().dropItemNaturally(player.getLocation(), cursorItem);
+                        player.setItemOnCursor(new ItemStack(Material.AIR));
+                        event.getClickedInventory().setItem(COMPASS_SLOT, 
+                            new ItemStack(Material.COMPASS));
+                    }
+                }
             }
-            return;
         }
 
-        // Block shift-clicking a compass OUT of the player's inventory
         if (event.isShiftClick() && event.getClickedInventory() != null &&
             event.getClickedInventory().getType() == InventoryType.PLAYER) {
             
             ItemStack clickedItem = event.getCurrentItem();
-            if (clickedItem != null && clickedItem.getType() == Material.COMPASS && 
-                event.getSlot() == COMPASS_SLOT) {
-                event.setCancelled(true);
-                return;
-            }
-        }
-
-        // Block moving compass WITH cursor (drag to hotbar)
-        if (event.getCursor() != null && event.getCursor().getType() == Material.COMPASS) {
-            // If clicking anywhere in hotbar (slots 0-8) with compass on cursor
-            if (event.getSlot() < 9 && event.getClickedInventory().getType() == InventoryType.PLAYER) {
-                event.setCancelled(true);
-                player.setItemOnCursor(new ItemStack(Material.AIR));
-                playerInventory.setItem(COMPASS_SLOT, new ItemStack(Material.COMPASS));
-                return;
+            if (clickedItem != null && clickedItem.getType() == Material.COMPASS) {
+                if (event.getSlot() == COMPASS_SLOT) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -129,25 +119,20 @@ public class PlayerListener implements Listener {
         if (!plugin.isPluginEnabled()) return;
         if (!player.hasPermission("compasshotbar.use")) return;
 
-        PlayerInventory playerInventory = player.getInventory();
-        ItemStack compassInSlot = playerInventory.getItem(COMPASS_SLOT);
-        boolean hasCompassInSlot = compassInSlot != null && compassInSlot.getType() == Material.COMPASS;
+        ItemStack compass = player.getInventory().getItem(COMPASS_SLOT);
+        if (compass == null || compass.getType() != Material.COMPASS) return;
 
-        // Block any drag operation that affects the compass slot
-        for (int slot : event.getRawSlots()) {
-            // Raw slot 8 is the compass hotbar slot, 44 is the offhand slot
-            // Slots 0-8 are hotbar slots in the player inventory
-            if (slot == COMPASS_SLOT || slot == COMPASS_SLOT + 36) {
-                if (hasCompassInSlot) {
-                    event.setCancelled(true);
-                    return;
-                }
+        // On ne doit annuler le glissé QUE s'il touche réellement la case 8 de la
+        // hotbar du joueur. Le numéro de "raw slot" dépend de l'inventaire ouvert
+        // (table de craft, coffre, etc.), donc on le convertit via la vue pour
+        // vérifier qu'il s'agit bien de l'inventaire du joueur et pas d'une autre
+        // case (grille de craft, armure...) qui porterait le même numéro brut.
+        for (int rawSlot : event.getRawSlots()) {
+            if (event.getView().getInventory(rawSlot) == player.getInventory()
+                    && event.getView().convertSlot(rawSlot) == COMPASS_SLOT) {
+                event.setCancelled(true);
+                return;
             }
-        }
-
-        // Also block if compass is being dragged onto the compass slot
-        if (hasCompassInSlot) {
-            event.setCancelled(true);
         }
     }
 
@@ -162,18 +147,6 @@ public class PlayerListener implements Listener {
             if (event.getAction().name().contains("RIGHT")) {
                 plugin.ensureCompassInSlot(player);
             }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        Player player = event.getPlayer();
-        if (!plugin.isPluginEnabled()) return;
-        if (!player.hasPermission("compasshotbar.use")) return;
-
-        ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
-        if (item != null && item.getType() == Material.COMPASS) {
-            plugin.ensureCompassInSlot(player);
         }
     }
 
