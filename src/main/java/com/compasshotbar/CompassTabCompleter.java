@@ -9,8 +9,8 @@ public class CompassTabCompleter implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(org.bukkit.command.CommandSender sender,
-                                       org.bukkit.command.Command command,
-                                       String alias, String[] args) {
+                                     org.bukkit.command.Command command,
+                                     String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
